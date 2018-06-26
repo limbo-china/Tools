@@ -3,6 +3,7 @@ package com.w.limbo.markdown;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
 public class GithubMarkdownContents {
 	
 	private String filename = null;
+	private String originalText = "";
 	
 	private FileInputStream input = null;
 	private InputStreamReader reader = null;
@@ -36,7 +38,10 @@ public class GithubMarkdownContents {
 	private void addContents() throws IOException{
 		fillTitleList();
 		handleTitleList();
-		System.out.println(generateContents());
+		writeContents();
+		//to do refactor!
+		
+		//to do
 	}
 	
 	private void fillTitleList() throws IOException{
@@ -46,6 +51,7 @@ public class GithubMarkdownContents {
 				titleList.add(new Title(line, true));
 			else if(isSubTitle(line))
 				titleList.add(new Title(line, false));
+			originalText += line + "\n";
 		}
 	}
 	
@@ -65,7 +71,7 @@ public class GithubMarkdownContents {
 		String contents = "";
 		for(Title title : titleList)
 			contents += generateALine(title);
-		
+		contents += "\n";
 		return contents;
 	}
 	private String generateALine(Title title){
@@ -74,7 +80,14 @@ public class GithubMarkdownContents {
 				title.getHandledTitle()+")"+"\n";
 				
 	}
-	
+
+	private void writeContents() throws IOException{
+		
+		FileWriter writer = new FileWriter(filename+"___contents");
+		writer.write(generateContents());	
+		writer.write(originalText);
+		writer.close();
+	}
 	public static void main(String[] args) throws IOException{
 		GithubMarkdownContents mc = GithubMarkdownContents.getInstance(args[0]);
 		mc.addContents();
