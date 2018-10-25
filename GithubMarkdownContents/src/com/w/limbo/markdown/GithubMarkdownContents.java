@@ -3,9 +3,11 @@ package com.w.limbo.markdown;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,14 +24,14 @@ public class GithubMarkdownContents {
 	
 	private static GithubMarkdownContents INSTANCE = null; 
 	
-	private GithubMarkdownContents(String filename) throws FileNotFoundException{
+	private GithubMarkdownContents(String filename) throws FileNotFoundException, UnsupportedEncodingException{
 		this.filename = filename;	
 		this.input = new FileInputStream(filename);
-		this.reader = new InputStreamReader(input);
+		this.reader = new InputStreamReader(input,"UTF-8");
 		this.buffer = new BufferedReader(reader);
 	}
 	
-	public static GithubMarkdownContents getInstance(String filename) throws FileNotFoundException{
+	public static GithubMarkdownContents getInstance(String filename) throws FileNotFoundException, UnsupportedEncodingException{
 		if(INSTANCE == null)
 			INSTANCE = new GithubMarkdownContents(filename);
 		return INSTANCE;
@@ -82,8 +84,8 @@ public class GithubMarkdownContents {
 	}
 
 	private void writeContents() throws IOException{
-		
-		FileWriter writer = new FileWriter(filename+"___contents");
+		FileOutputStream output = new FileOutputStream(filename+"___contents");
+		OutputStreamWriter writer = new OutputStreamWriter(output,"UTF-8");
 		writer.write(generateContents());	
 		writer.write(originalText);
 		writer.close();
@@ -95,6 +97,7 @@ public class GithubMarkdownContents {
 }
 
 class Title{
+	
 	private String originalTitle;
 	private String handledTitle;
 	private boolean isMainTitle;
@@ -112,7 +115,7 @@ class Title{
 	public void handleTitle(){
 		handledTitle = originalTitle.toLowerCase()
 				.replaceAll("[#]+[ ]+", "#")
-				.replaceAll("[^a-zA-z 0-9#]","")
+				.replaceAll("[.]","")
 				.replaceAll("[ ]+", "-");
 	}
 	
